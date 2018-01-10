@@ -69,6 +69,7 @@ abstract class BaseAdapter<T, VH : BaseAdapter.ViewHolder>(@LayoutRes private va
 
     /**
      * same as recyclerView.setAdapter(), and save the instance of recyclerView
+     * @param recyclerView
      */
     fun bindToRecyclerView(recyclerView: RecyclerView) {
         if (mRecyclerView != null) {
@@ -79,6 +80,13 @@ abstract class BaseAdapter<T, VH : BaseAdapter.ViewHolder>(@LayoutRes private va
     }
 
 
+    /**
+     * This method display different data according to different itemViewType [getItemViewType].
+     * headers,footers,empty view,loading view and
+     *
+     * @param holder
+     * @param position
+     */
     override fun onBindViewHolder(holder: VH?, position: Int) {
         autoLoadMore(position)
 
