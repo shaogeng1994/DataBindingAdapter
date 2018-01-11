@@ -13,7 +13,7 @@ import android.view.View
 import android.widget.TextView
 import com.shao.databindingadapter.databinding.ActivityMainBinding
 import com.shao.databindingadapter.library.SimpleAdapter
-import com.shao.databindingadapter.library.base.BaseAdapter
+import com.shao.databindingadapter.library.base.DataBindingAdapter
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,6 +33,10 @@ class MainActivity : AppCompatActivity() {
 
 //        mViewModel.getData()
     }
+
+    /**
+     * 实例化ViewModel 并给ViewModel的状态添加监听
+     */
     private fun bindViewModel() {
         mViewModel = MainViewModel()
 
@@ -70,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         mBinding.mainRecycler.apply {
             layoutManager = GridLayoutManager(context, 1)
             adapter = mAdapter
-            mAdapter.setOnLoadMoreListener(object : BaseAdapter.OnLoadMoreListener {
+            mAdapter.setOnLoadMoreListener(object : DataBindingAdapter.OnLoadMoreListener {
                 override fun onLoadMore() {
                     if (!mViewModel.isLoadEnd.get()) mViewModel.addData()
                 }
@@ -108,10 +112,10 @@ class MainActivity : AppCompatActivity() {
         @BindingAdapter("bind:base_adapter_items")
         fun <T> setItems(recyclerView: RecyclerView?, data: List<T>?) {
             if (recyclerView == null) return
-            if (recyclerView.adapter !is BaseAdapter<*, *>) {
+            if (recyclerView.adapter !is DataBindingAdapter<*, *>) {
                 throw Exception("bind:base_adapter_items recyclerView's adapter must be BaseAdapter")
             }
-            (recyclerView.adapter as BaseAdapter<T, *>).setNewData(data)
+            (recyclerView.adapter as DataBindingAdapter<T, *>).setNewData(data)
         }
 
 

@@ -1,3 +1,18 @@
+/**
+ * Copyright 2016 陈宇明
+ * <p/>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.shao.databindingadapter.library.base
 
 import android.databinding.DataBindingUtil
@@ -22,9 +37,12 @@ import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
 
 /**
- * Created by Administrator on 2018/1/4.
+ *
+ * @param layoutRes layout id of item
+ * @param variableId variable id of item
+ * @param data
  */
-abstract class BaseAdapter<T, VH : BaseAdapter.ViewHolder>(@LayoutRes private var layoutRes: Int,
+abstract class DataBindingAdapter<T, VH : DataBindingAdapter.ViewHolder>(@LayoutRes private var layoutRes: Int,
                                                                                             private var variableId: Int,
                                                                                             private var data: List<T>? = null)
     : RecyclerView.Adapter<VH>() {
@@ -60,7 +78,9 @@ abstract class BaseAdapter<T, VH : BaseAdapter.ViewHolder>(@LayoutRes private va
         mData = data ?: ArrayList()
     }
 
-
+    /**
+     * check mRecyclerView [mRecyclerView] is null
+     */
     private fun checkNotNull() {
         if (mRecyclerView == null) {
             throw RuntimeException("please bind recyclerView first!")
@@ -81,11 +101,12 @@ abstract class BaseAdapter<T, VH : BaseAdapter.ViewHolder>(@LayoutRes private va
 
 
     /**
-     * This method display different data according to different itemViewType [getItemViewType].
-     * headers,footers,empty view,loading view and
+     * This method display different data depending on the itemViewType [getItemViewType].
+     * headers,footers,empty view and loading view.
+     * call onBindContent [onBindContent] when it is not these views.
      *
-     * @param holder
-     * @param position
+     * @param holder holder of
+     * @param position position of RecyclerView's item
      */
     override fun onBindViewHolder(holder: VH?, position: Int) {
         autoLoadMore(position)
@@ -103,9 +124,11 @@ abstract class BaseAdapter<T, VH : BaseAdapter.ViewHolder>(@LayoutRes private va
 
     }
 
-
+    /**
+     *
+     * @param position
+     */
     override fun getItemViewType(position: Int): Int {
-
         return if (getEmptyLayoutCount() == 1) EMPTY_VIEW
         else {
             val header = getHeaderLayoutCount()
@@ -150,11 +173,16 @@ abstract class BaseAdapter<T, VH : BaseAdapter.ViewHolder>(@LayoutRes private va
         return viewHolder
     }
 
-
+    /**
+     * Get item view by DataBindingUtil
+     */
     protected fun getItemDataBinding(@LayoutRes layoutResId: Int, parent: ViewGroup?): ViewDataBinding {
         return DataBindingUtil.inflate<ViewDataBinding>(mLayoutInflater, layoutResId, parent, false)
     }
 
+    /**
+     * Get item view by mLayoutInflater [mLayoutInflater]
+     */
     protected fun getItemView(@LayoutRes layoutResId: Int, parent: ViewGroup): View? {
         return mLayoutInflater?.inflate(layoutResId, parent, false)
     }
@@ -187,7 +215,8 @@ abstract class BaseAdapter<T, VH : BaseAdapter.ViewHolder>(@LayoutRes private va
     /**
      * add one new data in to certain location
      *
-     * @param position
+     * @param position the insert position
+     * @param data the new data
      */
     fun addData(@IntRange(from = 0) position: Int, data: T) {
         (mData as ArrayList).add(position, data)
@@ -282,6 +311,13 @@ abstract class BaseAdapter<T, VH : BaseAdapter.ViewHolder>(@LayoutRes private va
         return getHeaderLayoutCount() + mData.size + getFooterLayoutCount()
     }
 
+
+    /**
+     * create the loadingView viewHolder by mLoadMoreViewModel [mLoadMoreViewModel]
+     *
+     * @see onCreateViewHolder
+     * @return a viewHolder hold loading view
+     */
     private fun getLoadingView(parent: ViewGroup): VH {
         val dataBinding = getItemDataBinding(mLoadMoreViewModel.layoutRes, parent)
         val viewHolder = createBaseViewHolder(dataBinding.root)
@@ -289,7 +325,13 @@ abstract class BaseAdapter<T, VH : BaseAdapter.ViewHolder>(@LayoutRes private va
         return viewHolder
     }
 
-
+    /**
+     * Set the onLoadMoreListener and get the instance of mRecyclerView [mRecyclerView]
+     * also make load more enable
+     *
+     * @param onLoadMoreListener
+     * @param recyclerView
+     */
     fun setOnLoadMoreListener(onLoadMoreListener: OnLoadMoreListener, recyclerView: RecyclerView) {
         mOnLoadMoreListener = onLoadMoreListener
         loadMoreEnable = true
@@ -303,6 +345,13 @@ abstract class BaseAdapter<T, VH : BaseAdapter.ViewHolder>(@LayoutRes private va
         notifyItemChanged(getLoadMoreViewPosition())
     }
 
+    /**
+     * This method can call mOnLoadMoreListener to onLoadMore [mOnLoadMoreListener] when position is
+     * last of mData.
+     *
+     * @see onBindViewHolder
+     * @param position
+     */
     private fun autoLoadMore(position: Int) {
         if (itemCount == 1) {
             return
@@ -325,19 +374,27 @@ abstract class BaseAdapter<T, VH : BaseAdapter.ViewHolder>(@LayoutRes private va
 
     }
 
-
+    /**
+     * change loadMoreViewModel status to default
+     */
     fun loadMoreComplete() {
         mLoadMoreViewModel.setStatusDefault()
         nextLoadMore = true
         mLoading = false
     }
 
+    /**
+     * change loadMoreViewModel status to fail
+     */
     fun loadMoreFail() {
         mLoadMoreViewModel.setStatusFail()
         nextLoadMore = false
         mLoading = false
     }
 
+    /**
+     * change loadMoreViewModel status to end
+     */
     fun loadMoreEnd() {
         mLoadMoreViewModel.setStatusEnd()
         loadMoreEnable = false
@@ -350,16 +407,25 @@ abstract class BaseAdapter<T, VH : BaseAdapter.ViewHolder>(@LayoutRes private va
      */
 
 
+    /**
+     * if has header return 1. else 0
+     */
     fun getHeaderLayoutCount(): Int {
         return if (mHeaderLayout?.childCount?.compareTo(0) == 1) 1
         else 0
     }
 
+    /**
+     * if has footer return 1. else 0
+     */
     fun getFooterLayoutCount(): Int {
         return if (mFooterLayout?.childCount?.compareTo(0) == 1) 1
         else 0
     }
 
+    /**
+     * if has empty view and mData is empty return 1. else 0
+     */
     fun getEmptyLayoutCount(): Int {
         return if (mEmptyLayout == null) 0
         else if (mEmptyLayout?.childCount?.compareTo(0) == 0) 0
@@ -523,6 +589,8 @@ abstract class BaseAdapter<T, VH : BaseAdapter.ViewHolder>(@LayoutRes private va
     }
 
     /**
+     * add the header view to mHeaderLayout [mHeaderLayout] depending on index and orientation
+     *
      * @param header
      * @param index
      * @param orientation
@@ -560,6 +628,7 @@ abstract class BaseAdapter<T, VH : BaseAdapter.ViewHolder>(@LayoutRes private va
     fun setHeaderView(header: View, index: Int): Int {
         return setHeaderView(header, index, LinearLayout.VERTICAL)
     }
+
 
     fun setHeaderView(header: View, index: Int, orientation: Int): Int {
         return if (mHeaderLayout == null || mHeaderLayout!!.childCount <= index) {
@@ -757,12 +826,20 @@ abstract class BaseAdapter<T, VH : BaseAdapter.ViewHolder>(@LayoutRes private va
         }
     }
 
-
+    /**
+     * This interface will call onLoadMore() when it need load more.
+     *
+     * @see setOnLoadMoreListener
+     * @see autoLoadMore
+     */
     interface OnLoadMoreListener {
         fun onLoadMore()
     }
 
 
+    /**
+     * you can bind data to view.like bind viewModel to viewDataBinding in this abstract method
+     */
     abstract fun onBindContent(holder: VH?, t: T?)
 
 

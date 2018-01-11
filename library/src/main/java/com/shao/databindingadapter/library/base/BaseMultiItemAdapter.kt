@@ -4,12 +4,9 @@ import android.support.annotation.LayoutRes
 import android.view.ViewGroup
 import java.lang.IllegalArgumentException
 
-/**
- * Created by Administrator on 2018/1/6.
- */
 abstract class BaseMultiItemAdapter<T : BaseMultiItemAdapter.MultiItemEntity
-        , VH : BaseAdapter.ViewHolder>(multiData: List<T>? = null)
-    : BaseAdapter<T, VH>(-1, -1, multiData) {
+        , VH : DataBindingAdapter.ViewHolder>(multiData: List<T>? = null)
+    : DataBindingAdapter<T, VH>(-1, -1, multiData) {
 
     val itemTypeSet: MutableSet<Int> = HashSet()
     val layoutResMap: MutableMap<Int, Int> = HashMap()

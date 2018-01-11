@@ -4,9 +4,6 @@ import android.databinding.BaseObservable
 import android.databinding.Bindable
 import android.support.annotation.LayoutRes
 
-/**
- * Created by Administrator on 2018/1/5.
- */
 abstract class BaseLoadMoreViewModel(@LayoutRes val layoutRes: Int, val viewModelId: Int): BaseObservable() {
 
     companion object {

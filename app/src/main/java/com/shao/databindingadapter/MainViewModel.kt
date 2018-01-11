@@ -5,9 +5,6 @@ import android.databinding.ObservableArrayList
 import android.databinding.ObservableBoolean
 import android.os.Handler
 
-/**
- * Created by Administrator on 2018/1/9.
- */
 class MainViewModel: BaseObservable() {
 
     val dataList = ObservableArrayList<DataItemViewModel>()
@@ -19,6 +16,9 @@ class MainViewModel: BaseObservable() {
 
     val mHandler = Handler()
 
+    /**
+     * 清空列表，获取数据
+     */
     fun getData() {
         isLoadEnd.set(false)
         isRefreshing.set(true)
@@ -36,7 +36,9 @@ class MainViewModel: BaseObservable() {
         }, 1000)
     }
 
-
+    /**
+     * 加载更多数据
+     */
     fun addData() {
         mHandler.postDelayed({
             dataList.addAll(ArrayList<DataItemViewModel>().apply {
@@ -48,6 +50,7 @@ class MainViewModel: BaseObservable() {
                 add(DataItemViewModel(Data("添加数据6", 0xffcccccc.toInt())))
             })
             if (dataList.size > 20) {
+                //延时改变状态，避免先改变状态再执行添加操作
                 mHandler.postDelayed({isLoadEnd.set(true)}, 300)
             } else {
                 isLoadComplete.set(true)

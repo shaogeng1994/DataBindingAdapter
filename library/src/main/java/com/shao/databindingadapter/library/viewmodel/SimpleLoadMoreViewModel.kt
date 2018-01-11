@@ -3,10 +3,8 @@ package com.shao.databindingadapter.library.viewmodel
 import com.shao.databindingadapter.library.BR
 import com.shao.databindingadapter.library.R
 
-/**
- * Created by Administrator on 2018/1/5.
- */
 class SimpleLoadMoreViewModel: BaseLoadMoreViewModel(R.layout.view_load_more, BR.loadMoreViewModel) {
+
     override fun isStatusDefault() = mLoadMoreStatus == STATUS_DEFAULT
 
     override fun isStatusLoading() = mLoadMoreStatus == STATUS_LOADING
