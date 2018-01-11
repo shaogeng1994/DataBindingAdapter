@@ -540,7 +540,7 @@ abstract class DataBindingAdapter<T, VH : DataBindingAdapter.ViewHolder>(@Layout
             val types = type.actualTypeArguments
             for (temp in types) {
                 if (temp is Class<*>) {
-                    if (ViewHolder::class.java!!.isAssignableFrom(temp)) {
+                    if (ViewHolder::class.java.isAssignableFrom(temp)) {
                         return temp
                     }
                 }
