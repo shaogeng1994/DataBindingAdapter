@@ -190,7 +190,7 @@ abstract class DataBindingAdapter<T, VH : DataBindingAdapter.ViewHolder>(@Layout
 
     override fun getItemCount(): Int {
         return if (getEmptyLayoutCount() == 1) 1
-        else getHeaderLayoutCount() + mData.size + getFooterLayoutCount() + 1
+        else getHeaderLayoutCount() + mData.size + getFooterLayoutCount() + getLoadMoreViewCount()
     }
 
 
@@ -307,6 +307,25 @@ abstract class DataBindingAdapter<T, VH : DataBindingAdapter.ViewHolder>(@Layout
      * loadMore start
      */
 
+
+    /**
+     * Load more view count
+     *
+     * @return 0 or 1
+     */
+    fun getLoadMoreViewCount(): Int {
+        if (mOnLoadMoreListener == null || !loadMoreEnable) {
+            return 0
+        }
+        if (!nextLoadMore) {
+            return 0
+        }
+        return if (mData.isEmpty()) {
+            0
+        } else 1
+    }
+
+
     fun getLoadMoreViewPosition(): Int {
         return getHeaderLayoutCount() + mData.size + getFooterLayoutCount()
     }
@@ -353,6 +372,9 @@ abstract class DataBindingAdapter<T, VH : DataBindingAdapter.ViewHolder>(@Layout
      * @param position
      */
     private fun autoLoadMore(position: Int) {
+        if (getLoadMoreViewCount() == 0) {
+            return
+        }
         if (itemCount == 1) {
             return
         }
@@ -378,6 +400,9 @@ abstract class DataBindingAdapter<T, VH : DataBindingAdapter.ViewHolder>(@Layout
      * change loadMoreViewModel status to default
      */
     fun loadMoreComplete() {
+        if (getLoadMoreViewCount() == 0) {
+            return
+        }
         mLoadMoreViewModel.setStatusDefault()
         nextLoadMore = true
         mLoading = false
@@ -387,18 +412,26 @@ abstract class DataBindingAdapter<T, VH : DataBindingAdapter.ViewHolder>(@Layout
      * change loadMoreViewModel status to fail
      */
     fun loadMoreFail() {
+        if (getLoadMoreViewCount() == 0) {
+            return
+        }
         mLoadMoreViewModel.setStatusFail()
         nextLoadMore = false
         mLoading = false
+        notifyItemChanged(getLoadMoreViewPosition())
     }
 
     /**
      * change loadMoreViewModel status to end
      */
     fun loadMoreEnd() {
+        if (getLoadMoreViewCount() == 0) {
+            return
+        }
         mLoadMoreViewModel.setStatusEnd()
         loadMoreEnable = false
         mLoading = false
+        notifyItemChanged(getLoadMoreViewPosition())
     }
 
 
